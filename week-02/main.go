@@ -5,7 +5,7 @@ package main
 // @Update    2021/7/25 9:26
 
 //我们在数据库操作的时候，比如 dao 层中当遇到一个 sql.ErrNoRows 的时候，是否应该 Wrap 这个 error，抛给上层。为什么，应该怎么做请写出代码？
-//应该使用warp简单包装加入报错的方法，具体判断有业务使用errors.is判断是否返回为空，进行解析。
+//应该使用warp简单包装加入报错引起的方法，具体判断有业务使用errors.is判断是否返回为空，进行解析。
 
 import (
 	"database/sql"

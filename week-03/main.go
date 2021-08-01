@@ -38,10 +38,16 @@ func regSignal(stop chan struct{}) error {
 	for {
 		sig := <-signalChan
 		switch sig {
-		case syscall.SIGHUP, syscall.SIGINT, syscall.SIGKILL:
+		//处理终止进程的信号 https://blog.csdn.net/sufwei/article/details/51610676
+		//SIGHUP     终止进程     终端线路挂断
+		//SIGINT     终止进程     中断进程
+		//SIGKILL   终止进程     杀死进程
+		//SIGTERM   终止进程     软件终止信号
+		// todo 在windows下测试ctrl+c 未输出，考虑可能原因是windows下终止的信号不一样或者不是发送信号，待待在linux下测试
+		case syscall.SIGHUP, syscall.SIGINT, syscall.SIGKILL, syscall.SIGTERM, syscall.SIGQUIT:
 			fmt.Println("Received exit signal, waiting for exit...")
-
 			stop <- struct{}{}
+
 		}
 	}
 }

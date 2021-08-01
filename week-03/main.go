@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
+	"syscall"
 )
 
 // @Description  go3task week-03
@@ -16,8 +16,6 @@ import (
 
 type httpServer struct {
 }
-
-type signalFunc func(<-chan struct{}) error
 
 func (server httpServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("path is : %s \n", r.URL.Path)))
@@ -35,6 +33,19 @@ func server(addr string, handler http.Handler, stop <-chan struct{}) error {
 	return s.ListenAndServe()
 }
 
+func regSignal(stop chan struct{}) error {
+	signalChan := make(chan os.Signal, 1)
+	for {
+		sig := <-signalChan
+		switch sig {
+		case syscall.SIGHUP, syscall.SIGINT, syscall.SIGKILL:
+			fmt.Println("Received exit signal, waiting for exit...")
+
+			stop <- struct{}{}
+		}
+	}
+}
+
 func main() {
 	stop := make(chan struct{})
 	eg, _ := errgroup.WithContext(context.Background())
@@ -43,7 +54,7 @@ func main() {
 		return server("0.0.0.0:8080", serverApp, stop)
 	})
 	eg.Go(func() error {
-		return Signal(stop)
+		return regSignal(stop)
 	})
 
 	if err := eg.Wait(); err != nil {

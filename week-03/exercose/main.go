@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+	"runtime"
 )
 
 // @Description  go语言学习练习
@@ -21,7 +21,12 @@ func main() {
 			fmt.Fprintln(resp, fmt.Sprintf("DeBug Page singlePanic Num: %s", singlePanic))
 			if singlePanic == "1" {
 				//panic("Panic by manually")
-				log.Fatal("Panic by manually")
+				//os.Exit(1)
+				fmt.Println("DeBug Page singlePanic Num:", singlePanic, "Panic by manually")
+				//模拟协程退出，但是好不行.....
+
+				runtime.Goexit()
+
 			}
 
 		})

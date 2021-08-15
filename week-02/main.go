@@ -51,7 +51,7 @@ func handleFindNameByNum(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte(fmt.Sprintf("arg num is illegal characters")))
 		return
 	}
-	name, err := QueryUserByNum(selectNum)
+	name, err := DaoQueryUserByNum(selectNum)
 
 	if errors.Is(err, sql.ErrNoRows) {
 
@@ -63,29 +63,24 @@ func handleFindNameByNum(writer http.ResponseWriter, request *http.Request) {
 
 }
 
-func QueryUserByNum(num int) (name string, err error) {
+// DaoQueryUserByNum  Simulation of Dao operation
+func DaoQueryUserByNum(num int) (name string, err error) {
 
 	query := "select name from user WHERE num = ?"
 	err = Db.QueryRow(query, num).Scan(&name)
 
-	if errors.Is(err, sql.ErrNoRows) {
-		errors.Wrap(err, "Func: QueryUserByNum")
-		return
-
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			errors.Wrap(err, "Func: DaoQueryUserByNum")
+			//errors.Wrapf(err,"SQL ERROR ")
+			return
+		}
 	}
+
 	return
 }
 
 func main() {
-	//name, err := QueryUserByNum(1)
-	//if err != nil {
-	//	if errors.Is(err, sql.ErrNoRows) {
-	//		fmt.Println("no name res with query num ")
-	//		return
-	//
-	//	}
-	//}
-	//fmt.Println("name:", name)
 
 	// http://127.0.0.1:8080/user?num=0
 	http.HandleFunc("/user", handleFindNameByNum)
